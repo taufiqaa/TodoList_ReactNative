@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
-  import { StyleSheet, Text, View } from 'react-native';
-  import { Dropdown } from 'react-native-element-dropdown';
-  import AntDesign from 'react-native-vector-icons/AntDesign';
-
-  const data = [
-    { label: 'Study', value: '1' },
-    { label: 'Home work', value: '2' },
-    { label: 'Workout', value: '3' },
-  ];
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
   const CategoryDropdown = () => {
+    const [category, setCategory] = useState([])
     const [value, setValue] = useState(null);
     const [isFocus, setIsFocus] = useState(false);
+
+    const getCategory = async () => {
+      try {
+        const res = await axios.get(
+          "https://api.kontenbase.com/query/api/v1/e47c10a1-ec97-4a84-988c-3c146b726ef0/Category"
+        );
+        setCategory(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
     const renderLabel = () => {
       if (value || isFocus) {
@@ -24,6 +31,9 @@ import React, { useState } from 'react';
       return null;
     };
 
+    useEffect(() => {
+      getCategory()
+    },[])
     return (
       <View style={styles.container}>
         {renderLabel()}
@@ -33,13 +43,15 @@ import React, { useState } from 'react';
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}
           iconStyle={styles.iconStyle}
-          data={data}
+          data={ category.map((data) => (
+            { label: data.category, value: data._id }
+          ))}
           search
           width={'100%'}
           maxHeight={300}
           labelField="label"
           valueField="value"
-          placeholder={!isFocus ? 'Category' : '...'}
+          placeholder={!isFocus ? 'Category' : '. . .'}
           searchPlaceholder="Search..."
           value={value}
           onFocus={() => setIsFocus(true)}
@@ -48,7 +60,7 @@ import React, { useState } from 'react';
             setValue(item.value);
             setIsFocus(false);
           }}
-            />
+        />
       </View>
     );
   };

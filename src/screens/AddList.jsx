@@ -1,18 +1,16 @@
 import { StatusBar } from "expo-status-bar";
-import React,{useState} from "react";
-import { Image, View, StyleSheet, Text, TextInput, TouchableOpacity, Button } from "react-native";
+import { useState } from "react";
+import { View, StyleSheet, Text, TextInput, TouchableOpacity } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios'
 import DropdownCategory from "../components/Category-Dropdown";
-import { Date } from "../components/Date";
 
 export default function AddList({navigation}) {
-    const [form, setForm] = useState({
-        email: '',
-        password: '',
-    });
-
     const [isLoading, setIsLoading] = useState(false);
+    const [form, setForm] = useState({
+        todo: '',
+        desc: '',
+    });
     
     const handleOnChange = (name, value) => {
         setForm({
@@ -24,63 +22,63 @@ export default function AddList({navigation}) {
     const handleOnPress = async () => {
         try {
             const config = {
-                headers: {
-                'Content-type': 'application/json',
-                },
+                headers: {'Content-type': 'application/json'}
             };
         
             const body = JSON.stringify(form);
+
             setIsLoading(true)
-            const response = await axios.post('https://api.kontenbase.com/query/api/v1/e47c10a1-ec97-4a84-988c-3c146b726ef0/Login', body, config);
-            // console.log(response);
-            setIsLoading(false)           
+
+            const response = await axios.post('https://api.kontenbase.com/query/api/v1/e47c10a1-ec97-4a84-988c-3c146b726ef0/List', body, config);
+            console.log(response);
+
+            setIsLoading(false)     
+
             if (response) {
                 await AsyncStorage.setItem('token', response.data.token);
             }
             
             const value = await AsyncStorage.getItem('token');
+
             if (value !== null) {
-                console.log(value);
+                console.log("token is " + value);
                 navigation.navigate("Users")
             }
-                
         } catch (error) {
             console.log(error);
             alert(error.response.data.message);
-            setIsLoading(false)           
-
+            setIsLoading(false)
         }
     };
-
     return (
         <View style={style.section}>
             <StatusBar />
             <Text style={style.CategoryTitle}>Add List</Text>
             <View>
                 <TextInput 
-                    style={style.textValue} 
-                    placeholder="Category" 
-                    onChangeText={(value) => handleOnChange('email', value)}
-                    value={form.email}
+                    style={style.textValue}
+                    placeholder="What to do?"
+                    value={form.todo}
+                    onChangeText={(value) => handleOnChange('todo', value)}
                 />
             </View>
             <View>
                 <DropdownCategory/>
             </View>
-            <View>
-                {/* <Date /> */}
-            </View>
+            {/* <View>
+                <Date />
+            </View> */}
             <View>
             <TextInput 
-                    style={style.textAreaValue}
-                    maxCharLimit={5000} 
-                    placeholder="Description" 
-                    onChangeText={(value) => handleOnChange('email', value)}
-                    value={form.email}
-                /> 
+                style={style.textAreaValue}
+                maxCharLimit={200}
+                placeholder="Description"
+                value={form.desc}
+                onChangeText={(value) => handleOnChange('desc', value)}
+            /> 
             </View>
             <TouchableOpacity style={style.CategoryButton} onPress={handleOnPress}>
-                     <Text style={style.textButton}>Add List</Text>
+                <Text style={style.textButton}>Add List</Text>
             </TouchableOpacity>
         </View>
     );

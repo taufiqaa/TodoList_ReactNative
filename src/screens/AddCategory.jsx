@@ -1,74 +1,88 @@
 import { StatusBar } from "expo-status-bar";
-import React,{useState} from "react";
-import { Image, View, StyleSheet, Text, TextInput, TouchableOpacity, Button } from "react-native";
+import { useEffect, useState } from "react";
+import { View, StyleSheet, Text, TextInput, TouchableOpacity } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios'
-import { textAlign } from "styled-system";
 
 export default function AddCategory({navigation}) {
-    const [form, setForm] = useState({
-        email: '',
-        password: '',
+  const [isLoading, setIsLoading] = useState(false);
+  const [category, setCategory] = useState([])
+  const [form, setForm] = useState({ category: '' });
+
+  const getCategory = async () => {
+    try {
+      const res = await axios.get(
+        "https://api.kontenbase.com/query/api/v1/e47c10a1-ec97-4a84-988c-3c146b726ef0/Category"
+      );
+      setCategory(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleOnChange = (name, value) => {
+    setForm({
+      ...form,
+      [name]: value,
     });
+  };
 
-    const [isLoading, setIsLoading] = useState(false);
-    
-    const handleOnChange = (name, value) => {
-        setForm({
-            ...form,
-            [name]: value,
-        });
-    };
+  const handleOnPress = async () => {
+    try {
+      const config = {
+        headers: {'Content-type': 'application/json'}
+      };
 
-    const handleOnPress = async () => {
-        try {
-            const config = {
-                headers: {
-                'Content-type': 'application/json',
-                },
-            };
-        
-            const body = JSON.stringify(form);
-            setIsLoading(true)
-            const response = await axios.post('https://api.kontenbase.com/query/api/v1/e47c10a1-ec97-4a84-988c-3c146b726ef0/Login', body, config);
-            // console.log(response);
-            setIsLoading(false)           
-            if (response) {
-                await AsyncStorage.setItem('token', response.data.token);
-            }
-            
-            const value = await AsyncStorage.getItem('token');
-            if (value !== null) {
-                console.log(value);
-                navigation.navigate("Users")
-            }
-                
-        } catch (error) {
-            console.log(error);
-            alert(error.response.data.message);
-            setIsLoading(false)           
+      const body = JSON.stringify(form);
 
-        }
-    };
+      setIsLoading(true)
 
-    return (
-        <View style={style.section}>
-            <StatusBar />
-            <Text style={style.CategoryTitle}>Add Category</Text>
-            <View>
-                <TextInput 
-                    style={style.textValue} 
-                    placeholder="Name" 
-                    onChangeText={(value) => handleOnChange('email', value)}
-                    value={form.email}
-                />
-            </View>
-            <TouchableOpacity style={style.CategoryButton} onPress={handleOnPress}>
-                     <Text style={style.textButton}>Add Category</Text>
-            </TouchableOpacity>
-            <Text style={style.CategoryTitle}>List Category</Text>
-        </View>
-    );
+      const response = await axios.post('https://api.kontenbase.com/query/api/v1/e47c10a1-ec97-4a84-988c-3c146b726ef0/Category', body, config);
+      console.log(response);
+
+      setIsLoading(false)      
+
+      if (response) {
+        await AsyncStorage.setItem('token', response.data.token);
+      }
+
+      const value = await AsyncStorage.getItem('token');
+
+      if (value !== null) {
+        console.log("token is " + value);
+        navigation.navigate("Users")
+      }
+    } catch (error) {
+      console.log(error);
+      alert(error.response.data.message);
+      setIsLoading(false)
+    }
+  };
+
+  useEffect(() => {
+    getCategory()
+  }, [])
+  return (
+    <View style={style.section}>
+      <StatusBar />
+      <Text style={style.CategoryTitle}>Add Category</Text>
+      <View>
+        <TextInput 
+          style={style.textValue} 
+          placeholder="Name"
+          value={form.category}
+          onChangeText={(value) => handleOnChange('category', value)}
+        />
+      </View>
+      <TouchableOpacity style={style.CategoryButton} onPress={handleOnPress}>
+        <Text style={style.textButton}>Add Category</Text>
+      </TouchableOpacity>
+      <Text style={style.CategoryTitle}>List Category</Text>
+      { category.map((list) => (
+        <Text key={list._id}>{list.category}</Text>
+      ))}
+    </View>
+  );
 }
 
 const style = StyleSheet.create({

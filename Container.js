@@ -46,16 +46,14 @@ function BottomTab() {
 }
 
 export default function Container() {
-
   return (
     <NavigationContainer>
       <Stack.Navigator>
-      <Stack.Screen name="BottomTab" component={BottomTab} options={{headerShown: false}}/>
       <Stack.Screen name="Index" component={Index} options={{headerShown:false}}/>
       <Stack.Screen name="Register" component={Register} options={{headerShown:false}} />
       <Stack.Screen name="Login" component={Login} options={{headerShown: false}}/>
       <Stack.Screen name="DetailList" component={DetailList} options={{headerShown: false}}/>
-      
+      <Stack.Screen name="BottomTab" component={BottomTab} options={{headerShown: false}}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

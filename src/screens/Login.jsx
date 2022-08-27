@@ -41,7 +41,7 @@ export default function Login({navigation}) {
             const value = await AsyncStorage.getItem('token');
             if (value !== null) {
                 console.log(value);
-                navigation.navigate("ListTodos")
+                navigation.navigate("BottomTab")
             }
                 
         } catch (error) {
