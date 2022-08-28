@@ -65,9 +65,9 @@ export default function AddList({navigation}) {
             <View>
                 <DropdownCategory/>
             </View>
-            {/* <View>
-                <Date />
-            </View> */}
+            <View>
+                
+            </View>
             <View>
             <TextInput 
                 style={style.textAreaValue}
